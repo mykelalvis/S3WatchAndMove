@@ -3,15 +3,16 @@ from pathlib import Path
 import boto3
 import botocore
 from botocore.exceptions import ClientError
+import os
 
 @click.command()
 @click.option('--debug/--no-debug', '-d', default=False, help='Debug mode')
 @click.option('--tag','-t', nargs=2, multiple=True)
-@click.option('--delete-when-moved', default=False)
+@click.option('--delete/--no-delete', '-x', default=False, help='Delete files that get copied')
 @click.option('--region', required=False, help='Override of default region')
 @click.argument('src', type=click.Path(exists=True, dir_okay=False, readable=True, resolve_path=True, allow_dash=False),required=True)
 @click.argument('bucket',required=True)
-def main(debug,src,bucket, tag, delete_when_moved, region):
+def main(debug,src,bucket, tag, delete, region):
     """Move a file at a given path to an S3 bucket"""
     path = Path(src)
     if path.exists():
@@ -24,6 +25,13 @@ def main(debug,src,bucket, tag, delete_when_moved, region):
                 s3_client = boto3.client('s3', region_name=region)
                 # Upload the file to S3
                 s3_client.upload_file(src, bucket, path.name)
+                if delete:
+                    key = s3_client.head_object(Bucket=bucket,Key=path.name)
+                    if not key['ContentLength'] == path.stat().st_size:
+                        print "Bucket object not same size"
+                    else:
+                        path.unlink()
+
             except ClientError as e:
                 click.fail(e.msg)
     else:
