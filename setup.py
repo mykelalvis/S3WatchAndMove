@@ -22,6 +22,7 @@ setup(
     entry_points={
         'console_scripts': [
             'sftpwatcher = sftpwatcher.cli:main',
+            's3mover = s3mover.cli:main',
         ],
     },
     classifiers=[
@@ -34,7 +35,7 @@ setup(
         # 'Development Status :: 6 - Mature',
         # 'Development Status :: 7 - Inactive',
         'Environment :: Console',
-        'Intended Audience :: Developers',
+        'Intended Audience :: Operators',
         'License :: OSI Approved :: BSD License',
         'Operating System :: POSIX',
         'Operating System :: MacOS',
