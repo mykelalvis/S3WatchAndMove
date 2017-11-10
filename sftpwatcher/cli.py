@@ -15,7 +15,6 @@ import subprocess
 @click.argument('path', type=click.Path(exists=True, dir_okay=True, readable=True, resolve_path=True, allow_dash=False),required=True)
 def main(debug,path,relocate,executable, matches, files):
     """Watch a directory and do stuff to matching files there once nothing has them open"""
-
     if not Path(executable).exists():
         print "Warning: {0} is not necessarily a file".format(executable)
     for o in [pth for pth in Path(path).iterdir() if (not files or (pth.is_file() and files)) and  (re.search(matches,str(pth.name)) and no_handle(str(pth))) ]:
