@@ -3,7 +3,7 @@ Watch SFTP and do stuff to a dir of files once it no longer has them open
 """
 from setuptools import find_packages, setup
 
-dependencies = ['click', 'psutil', 'pathlib']
+dependencies = ['click', 'psutil', 'pathlib', 'colorama']
 
 setup(
     name='sftpwatcher',

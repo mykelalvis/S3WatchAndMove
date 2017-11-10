@@ -17,15 +17,20 @@ def main(debug,path,relocate,executable, matches, files):
     """Watch a directory and do stuff to matching files there once nothing has them open"""
     if not Path(executable).exists():
         print "Warning: {0} is not necessarily a file".format(executable)
-    for o in [pth for pth in Path(path).iterdir() if (not files or (pth.is_file() and files)) and  (re.search(matches,str(pth.name)) and no_handle(str(pth))) ]:
-        if debug:
-            click.echo('Run "{2} {0}{1}"'.format(o, ', after relocating to {0}'.format(Path(relocate).cwd()) if relocate else '', executable))
-        workPath = o
-        # if relocate:
-        #     workPath = Path(relocate) / o.name
-        #     shutil.move(o,workPath)
-        click.echo('Working on {0}'.format(workPath))
-        process = subprocess.Popen([executable,str(workPath)])
+    da_paths = [pth for pth in Path(path).iterdir() if (not files or (pth.is_file() and files)) and  (re.search(matches,str(pth.name)) and no_handle(str(pth))) ]
+    with click.progressbar(da_paths) as pths:
+        for o in pths:
+            if debug:
+                click.echo('Run "{2} {0}{1}"'.format(o, ', after relocating to {0}'.format(Path(relocate).cwd()) if relocate else '', executable))
+            workPath = relo_path(relocate, o)
+            process = subprocess.Popen([executable,str(workPath)])
+
+def relo_path(relocate, original)
+    workPath = original
+    if relocate:
+        workPath = Path(relocate) / o.name
+        shutil.move(original,workPath)
+    return workPath
 
 def no_handle(the_path):
     for the_pid in psutil.process_iter():
