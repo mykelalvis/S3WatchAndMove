@@ -1,10 +1,25 @@
 import click
+import psutil
 
 
 @click.command()
-@click.option('--as-cowboy', '-c', is_flag=True, help='Greet as a cowboy.')
-@click.argument('name', default='world', required=False)
-def main(name, as_cowboy):
+@click.option('--debug', '-d', is_flag=True, help='Debug mode')
+@click.argument('--path', '-p', required=True, help='Directoy to monitor')
+@clich.option('--relocate', '-r', is_flag=True, required=False, default=False, help='Move files before running executable')
+@click.argument('--executable', '-e', default='echo', required=False, help='Executable to run on each file.  Passes full path of file as only parameter.')
+def main(debug,path,relocate,executable):
     """Watch SFTP and do stuff to a dir of files once it no longer has them open"""
-    greet = 'Howdy' if as_cowboy else 'Hello'
-    click.echo('{0}, {1}.'.format(greet, name))
+    greet = 'Howdy' if debug else 'Hello'
+    rel = 'relocated' if relocate else 'NOT relocated'
+    click.echo('{0}.  Run for {1}, {2}, executing "{3}" '.format(greet, sftp, path, rel, executable))
+
+def has_handle(the_path):
+    for the_pid in psutil.process_iter():
+        try:
+            for file in the_pid.open_files():
+                if the_path == file.path:
+                    return True
+        except Exception:
+            pass
+
+    return False
