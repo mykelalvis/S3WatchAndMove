@@ -16,7 +16,7 @@ def main(debug,src,bucket, tag, delete, region):
     """Move a file at a given path to an S3 bucket"""
     path = Path(src)
     if path.exists():
-        print bucket
+        if debug: click.echo("Bucket is {0}".format(bucket))
         if debug: click.echo('{0} exists, tags = "{1}"'.format(src,(tag)))
         my_bucket = get_bucket(bucket, region)
         if debug: click.echo('Got bucket resource {0}'.format(bucket)) if my_bucket else click.echo("NO BUCKET")
@@ -24,6 +24,7 @@ def main(debug,src,bucket, tag, delete, region):
             try:
                 s3_client = boto3.client('s3', region_name=region)
                 # Upload the file to S3
+                if debug: click.echo('Uploading {0} to {1} at {2}'.format(src, bucket, path.name))
                 s3_client.upload_file(src, bucket, path.name)
                 if delete:
                     key = s3_client.head_object(Bucket=bucket,Key=path.name)
