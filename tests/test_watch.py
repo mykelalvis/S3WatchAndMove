@@ -1,12 +1,22 @@
 import pytest
-import boto3
 from click.testing import CliRunner
 from sftpwatcher import watch
-from random import randint
+import shutil
+import os
+import os.path
+
+
+def ensure_dir(file_path):
+    directory = os.path.dirname(file_path)
+    if os.path.exists(directory):
+        shutil.rmtree(file_path, True)
+    shutil.copytree('src/test/resources/', file_path)
+    return directory
 
 
 @pytest.fixture
 def runner():
+    directory = ensure_dir('./target')
     return CliRunner()
 
 
@@ -24,35 +34,18 @@ def test_cli_bad_path(runner):
     assert 'Invalid value for "path": Path "X" does not exist' in str(result.output)
 
 
-# def test_cli_good_path_bad_bucket(runner):
-#     result = runner.invoke(move.main, ['./setup.cfg', 'y'])
-#     assert result.exit_code == -1
-#     assert result.exception
-#     assert 'specified bucket is not valid' in str(result.exception)
-#
-#
-# def test_cli_good_path_good_bucket(runner):
-#     client = boto3.client('s3')
-#     id = 'xtb{0}'.format(randint(1000, 9999))
-#     cbc = {'LocationConstraint': 'us-west-2'}
-#     client.create_bucket(Bucket=id, CreateBucketConfiguration=cbc)
-#     result = runner.invoke(move.main, ['./setup.cfg', id])
-#     assert result.exit_code == 0
-#     s3 = boto3.resource('s3')
-#     bucket = s3.Bucket(id)
-#     for s3_file in bucket.objects.all():
-#         s3_file.delete()
-#     bucket.delete()
+def test_cli_good_path(runner):
+    result = runner.invoke(watch.main, ['target/watchdir'])
+    assert result.exit_code == 0
+    assert 'echo is not necessarily' in str(result.output)
 
-# def test_cli_with_option(runner):
-#     result=runner.invoke(cli.main, ['--as-cowboy'])
-#     assert not result.exception
-#     assert result.exit_code == 0
-#     assert result.output.strip() == 'Howdy, world.'
-#
-#
-# def test_cli_with_arg(runner):
-#     result=runner.invoke(cli.main, ['Mykel'])
-#     assert result.exit_code == 0
-#     assert not result.exception
-#     assert result.output.strip() == 'Hello, Mykel.'
+def test_cli_good_path_(runner):
+    result = runner.invoke(watch.main, ['--debug', '--matches', '.*txt', 'target/watchdir'])
+    assert result.exit_code == 0
+    assert 'tempfile.txt' in str(result.output)
+
+def test_cli_good_path_relocate(runner):
+    result = runner.invoke(watch.main, [ '--debug', '--relocate','target/relo', '--matches','.*txt', 'target/watchdir'])
+    print result.exception
+    assert result.exit_code == 0
+    assert 'after relocating to' in str(result.output)

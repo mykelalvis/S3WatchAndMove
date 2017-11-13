@@ -19,7 +19,7 @@ setup(
     zip_safe=False,
     platforms='any',
     setup_requires=['pytest-runner'],
-    tests_require=[ 'tox', 'pytest', 'flake8'],
+    tests_require=[ 'tox', 'pytest', 'flake8', 'coverage'],
     install_requires=dependencies,
     entry_points={
         'console_scripts': [

@@ -4,6 +4,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import os
 
 
 @click.command()
@@ -18,17 +19,21 @@ import subprocess
 def main(debug, path, relocate, executable, matches, files):
     """Watch a directory and do stuff to matching files there once nothing has them open"""
     if not Path(executable).exists():
-        print "Warning: {0} is not necessarily a file".format(executable)
+        click.echo("Warning: {0} is not necessarily a file".format(executable))
     da_paths = [pth for pth in Path(path).iterdir()
                 if (not files or (pth.is_file() and files))
                 and (re.search(matches, str(pth.name)) and no_handle(str(pth)))]
     with click.progressbar(da_paths) as pths:
         for oper in pths:
             if debug:
-                pstr = str(Path(relocate).cwd()) if relocate else ''
-                click.echo('Run "{2} {0}{1}"'.format(oper, ', after relocating to {0}'.format(pstr, executable)))
+                rstr = ''
+                if relocate:
+                    pth = Path(relocate).resolve()
+                    print "PATH = {0}".format(pth.as_posix())
+                    rstr = ', after relocating to {0}'.format(pth.as_posix())
+                click.echo('Run "{2} {0}{1}"'.format(oper, rstr, executable))
             workPath = relo_path(relocate, oper)
-            process = subprocess.Popen([executable, str(workPath)])
+            process = subprocess.Popen([executable, workPath])
             print process
 
 
@@ -36,8 +41,8 @@ def relo_path(relocate, original):
     workPath = original
     if relocate:
         workPath = Path(relocate) / original.name
-        shutil.move(original, workPath)
-    return workPath
+        shutil.move(original.as_posix(), workPath.as_posix())
+    return workPath.as_posix()
 
 
 def no_handle(the_path):
