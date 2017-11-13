@@ -11,41 +11,32 @@ import os
 @click.option('--debug', '-d', is_flag=True, help='Debug mode')
 @click.option('--executable', default='echo', help='Executable to run with the file as a parameter')
 @click.option('--matches', default='.*', help='Regex for files to match')
-@click.option('--files', is_flag=True, default=True, help='Only check files, not directories')
 @click.option('--relocate', type=click.Path(exists=True, dir_okay=True, readable=True, writable=True,
               resolve_path=True, allow_dash=False), help='Directory to relocate file to first')
 @click.argument('path', type=click.Path(exists=True, dir_okay=True, readable=True,
                 resolve_path=True, allow_dash=False), required=True)
-def main(debug, path, relocate, executable, matches, files):
+def main(debug, path, relocate, executable, matches):
     """Watch a directory and do stuff to matching files there once nothing has them open"""
+    files = True
+    rstr = '' if not relocate else ', after relocating to {0}'.format(Path(relocate).as_posix())
+
     if not Path(executable).exists():
         click.echo("Warning: {0} is not necessarily a file".format(executable))
-    click.echo("1")
-    da_paths = [pth for pth in Path(path).iterdir()
-                if (not files or (pth.is_file() and files))
-                and (re.search(matches, str(pth.name)) and no_handle(str(pth)))]
-    click.echo("2")
-    with click.progressbar(da_paths) as pths:
-        for oper in pths:
-            if debug:
-                rstr = ''
-                if relocate:
-                    pth = Path(relocate).resolve()
-                    rstr = ', after relocating to {0}'.format(pth.as_posix())
-                click.echo('Run "{2} {0}{1}"'.format(oper, rstr, executable))
-            click.echo("3")
-            workPath = relo_path(relocate, oper)
-            click.echo("6")
-            subprocess.Popen([executable, workPath])
+
+    da_paths = [pth for pth in Path(path).iterdir() if re.search(matches, pth.name)]
+    pths = [p2 for p2 in da_paths if no_handle(p2)]
+    for oper in pths:
+        if debug:
+            click.echo('Run "{2} {0}{1}"'.format(oper.as_posix(), rstr, executable))
+        workPath = relo_path(relocate, oper)
+        subprocess.Popen([executable, workPath])
 
 
-def relo_path(relocate, original):
+def relo_path(rel, original):
     workPath = original
-    click.echo("4")
-    if relocate:
-        workPath = Path(relocate) / original.name
+    if rel:
+        workPath = Path(rel) / original.name
         shutil.move(original.as_posix(), workPath.as_posix())
-    click.echo("5")
     return workPath.as_posix()
 
 
@@ -53,7 +44,8 @@ def no_handle(the_path):
     for the_pid in psutil.process_iter():
         try:
             for file in the_pid.open_files():
-                if the_path == file.path: return False
+                if file.path == the_path.as_posix():
+                  return False
         except Exception:
             pass
 
