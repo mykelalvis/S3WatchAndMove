@@ -10,8 +10,8 @@ import os
 @click.option('--tag','-t', nargs=2, multiple=True)
 @click.option('--delete/--no-delete', '-x', default=False, help='Delete files that get copied')
 @click.option('--region', required=False, help='Override of default region')
-@click.argument('src', type=click.Path(exists=True, dir_okay=False, readable=True, resolve_path=True, allow_dash=False),required=True)
 @click.argument('bucket',required=True)
+@click.argument('src', type=click.Path(exists=True, dir_okay=False, readable=True, resolve_path=True, allow_dash=False),required=True)
 def main(debug,src,bucket, tag, delete, region):
     """Move a file at a given path to an S3 bucket"""
     path = Path(src)

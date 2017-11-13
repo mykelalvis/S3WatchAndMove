@@ -49,8 +49,7 @@ def no_handle(the_path):
     for the_pid in psutil.process_iter():
         try:
             for file in the_pid.open_files():
-                if the_path == file.path:
-                    return False
+                if the_path == file.path: return False
         except Exception:
             pass
 
