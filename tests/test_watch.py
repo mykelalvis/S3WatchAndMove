@@ -16,7 +16,7 @@ def ensure_dir(file_path):
 
 @pytest.fixture
 def runner():
-    directory = ensure_dir('./target')
+    ensure_dir('./target')
     return CliRunner()
 
 
@@ -39,18 +39,21 @@ def test_cli_good_path(runner):
     assert result.exit_code == 0
     assert 'echo is not necessarily' in str(result.output)
 
+
 def test_cli_good_path_matching(runner):
-    result = runner.invoke(watch.main, [ '--debug', '--matches', '.*txt', './target/watchdir'])
+    result = runner.invoke(watch.main, ['--debug', '--matches', '.*txt', './target/watchdir'])
     assert result.exit_code == 0
     assert 'tempfile.txt' in str(result.output)
 
+
 def test_cli_good_path_relocate(runner):
-    result = runner.invoke(watch.main, [ '--debug', '--relocate','./target/relo', '--matches','.*txt', './target/watchdir'])
+    result = runner.invoke(watch.main,
+                           ['--debug', '--relocate', './target/relo', '--matches', '.*txt', './target/watchdir'])
     assert result.exit_code == 0
     assert 'after relocating to' in str(result.output)
 
 
 def test_cli_good_path_relocate_none(runner):
-    result = runner.invoke(watch.main, [ '--debug', '--relocate','target/relo', '--matches','.*md', 'target/watchdir'])
+    result = runner.invoke(watch.main, ['--debug', '--relocate', 'target/relo', '--matches', '.*md', 'target/watchdir'])
     assert result.exit_code == 0
-    assert not 'after relocating to' in str(result.output)
+    assert 'after relocating to' not in str(result.output)

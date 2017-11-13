@@ -6,6 +6,7 @@ from random import randint
 import os
 import shutil
 
+
 def ensure_dir(file_path):
     directory = os.path.dirname(file_path)
     if os.path.exists(directory):
@@ -16,7 +17,7 @@ def ensure_dir(file_path):
 
 @pytest.fixture
 def runner():
-    directory = ensure_dir('./target')
+    ensure_dir('./target')
     return CliRunner()
 
 
@@ -35,7 +36,7 @@ def test_cli_single_opt(runner):
 
 
 def test_cli_both_opts_bad_path(runner):
-    result = runner.invoke(move.main, ['y','X'])
+    result = runner.invoke(move.main, ['y', 'X'])
     assert result.exit_code == 2
     assert result.exception
     assert 'Invalid value for "src": Path "X" does not exist' in str(result.output)
@@ -64,15 +65,15 @@ def test_cli_good_path_good_bucket(runner):
     for s3_file in bucket.objects.all():
         s3_file.delete()
     bucket.delete()
-
     assert ass
 
-def test_cli_good_path_good_bucket(runner):
+
+def test_cli_good_path_good_bucket2(runner):
     client = boto3.client('s3')
     id = 'xtb{0}'.format(randint(1000, 9999))
     cbc = {'LocationConstraint': 'us-west-2'}
     client.create_bucket(Bucket=id, CreateBucketConfiguration=cbc)
-    result = runner.invoke(move.main, [ '--delete', id, './target/testfile.txt'])
+    result = runner.invoke(move.main, ['--delete', id, './target/testfile.txt'])
     assert result.exit_code == 0
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(id)
@@ -83,7 +84,6 @@ def test_cli_good_path_good_bucket(runner):
     for s3_file in bucket.objects.all():
         s3_file.delete()
     bucket.delete()
-
     assert ass
 
 

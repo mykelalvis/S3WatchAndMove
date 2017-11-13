@@ -4,7 +4,6 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
-import os
 
 
 @click.command()
@@ -17,7 +16,6 @@ import os
                 resolve_path=True, allow_dash=False), required=True)
 def main(debug, path, relocate, executable, matches):
     """Watch a directory and do stuff to matching files there once nothing has them open"""
-    files = True
     rstr = '' if not relocate else ', after relocating to {0}'.format(Path(relocate).as_posix())
 
     if not Path(executable).exists():
@@ -45,7 +43,7 @@ def no_handle(the_path):
         try:
             for file in the_pid.open_files():
                 if file.path == the_path.as_posix():
-                  return False
+                    return False
         except Exception:
             pass
 
