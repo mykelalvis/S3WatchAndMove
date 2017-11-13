@@ -46,13 +46,11 @@ def test_cli_good_path_(runner):
 
 def test_cli_good_path_relocate(runner):
     result = runner.invoke(watch.main, [ '--debug', '--relocate','target/relo', '--matches','.*txt', 'target/watchdir'])
-    print result.exception
     assert result.exit_code == 0
     assert 'after relocating to' in str(result.output)
 
 
 def test_cli_good_path_relocate_none(runner):
     result = runner.invoke(watch.main, [ '--debug', '--relocate','target/relo', '--matches','.*md', 'target/watchdir'])
-    print result.exception
     assert result.exit_code == 0
     assert not 'after relocating to' in str(result.output)

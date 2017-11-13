@@ -20,28 +20,32 @@ def main(debug, path, relocate, executable, matches, files):
     """Watch a directory and do stuff to matching files there once nothing has them open"""
     if not Path(executable).exists():
         click.echo("Warning: {0} is not necessarily a file".format(executable))
+    click.echo("1")
     da_paths = [pth for pth in Path(path).iterdir()
                 if (not files or (pth.is_file() and files))
                 and (re.search(matches, str(pth.name)) and no_handle(str(pth)))]
+    click.echo("2")
     with click.progressbar(da_paths) as pths:
         for oper in pths:
             if debug:
                 rstr = ''
                 if relocate:
                     pth = Path(relocate).resolve()
-                    print "PATH = {0}".format(pth.as_posix())
                     rstr = ', after relocating to {0}'.format(pth.as_posix())
                 click.echo('Run "{2} {0}{1}"'.format(oper, rstr, executable))
+            click.echo("3")
             workPath = relo_path(relocate, oper)
-            process = subprocess.Popen([executable, workPath])
-            print process
+            click.echo("6")
+            subprocess.Popen([executable, workPath])
 
 
 def relo_path(relocate, original):
     workPath = original
+    click.echo("4")
     if relocate:
         workPath = Path(relocate) / original.name
         shutil.move(original.as_posix(), workPath.as_posix())
+    click.echo("5")
     return workPath.as_posix()
 
 

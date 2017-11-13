@@ -29,7 +29,7 @@ def main(debug,src,bucket, tag, delete, region):
                 if delete:
                     key = s3_client.head_object(Bucket=bucket,Key=path.name)
                     if not key['ContentLength'] == path.stat().st_size:
-                        print "Bucket object not same size"
+                        click.echo("Bucket object not same size")
                     else:
                         path.unlink()
 

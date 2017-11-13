@@ -31,7 +31,7 @@ def test_cli_single_opt(runner):
     result = runner.invoke(move.main, ['X'])
     assert result.exit_code == 2
     assert result.exception
-    assert 'Invalid value for "src": Path "X" does not exist' in str(result.output)
+    assert 'Missing argument "src"' in str(result.output)
 
 
 def test_cli_both_opts_bad_path(runner):
@@ -42,7 +42,7 @@ def test_cli_both_opts_bad_path(runner):
 
 
 def test_cli_good_path_bad_bucket(runner):
-    result = runner.invoke(move.main, ['./target/testfile.txt', 'y'])
+    result = runner.invoke(move.main, ['y', './target/testfile.txt'])
     assert result.exit_code == -1
     assert result.exception
     assert 'specified bucket is not valid' in str(result.exception)
