@@ -21,8 +21,7 @@ def main(debug, path, relocate, executable, matches):
     if not Path(executable).exists():
         click.echo("Warning: {0} is not necessarily a file".format(executable))
 
-    da_paths = [pth for pth in Path(path).iterdir() if re.search(matches, pth.name)]
-    pths = [p2 for p2 in da_paths if no_handle(p2)]
+    pths = [pth for pth in Path(path).iterdir() if re.search(matches, pth.name) and no_handle(pth)]
     for oper in pths:
         if debug:
             click.echo('Run "{2} {0}{1}"'.format(oper.as_posix(), rstr, executable))
