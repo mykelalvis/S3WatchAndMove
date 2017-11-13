@@ -1,7 +1,7 @@
 import click
-from pathlib import Path
 import boto3
 import botocore
+from pathlib import Path
 from botocore.exceptions import ClientError
 import os
 
@@ -37,6 +37,7 @@ def main(debug,src,bucket, tag, delete, region):
                 click.fail(e.msg)
     else:
         print '{0} does not exist'.format(src)
+
 
 def get_bucket(candidate, region):
     """Get a bucket if it exists"""

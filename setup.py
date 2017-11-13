@@ -3,7 +3,7 @@ Watch SFTP and do stuff to a dir of files once it no longer has them open
 """
 from setuptools import find_packages, setup
 
-dependencies = ['click', 'psutil', 'pathlib', 'colorama']
+dependencies = [ 'click', 'boto3', 'psutil', 'pathlib', 'colorama',  ]
 
 setup(
     name='sftpwatcher',
@@ -18,11 +18,13 @@ setup(
     include_package_data=True,
     zip_safe=False,
     platforms='any',
+    setup_requires=['pytest-runner'],
+    tests_require=[ 'tox', 'pytest', 'flake8'],
     install_requires=dependencies,
     entry_points={
         'console_scripts': [
-            'sftpwatcher = sftpwatcher.cli:main',
-            's3mover = s3mover.cli:main',
+            'sftpwatcher = sftpwatcher.watch:main',
+            's3mover = s3mover.move:main',
         ],
     },
     classifiers=[
